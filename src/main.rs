@@ -17,19 +17,23 @@ struct TickerResponse {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let symbol = "BTCUSDT";
-    let url = format!("https://api.binance.com/api/v3/ticker/24hr?symbol={}", symbol);
+    // Première requête
+    let symbol_btcusdt = "BTCUSDT";
+    let url_btcusdt = format!("https://api.binance.com/api/v3/ticker/24hr?symbol={}", symbol_btcusdt);
 
-    let res = reqwest::get(&url).await?;
-    //println!("Status: {}", res.status());
-    //println!("Headers:\n{:#?}", res.headers());
+    let res_btcusdt = reqwest::get(&url_btcusdt).await?;
+    let body_btcusdt = res_btcusdt.text().await?;
+    let ticker_response_btcusdt: TickerResponse = serde_json::from_str(&body_btcusdt)?;
+    let weighted_avg_price_btcusdt = ticker_response_btcusdt.weightedAvgPrice;
+
+    println!("Weighted Avg Price for BTC/USDT: {}", weighted_avg_price_btcusdt);
+
+    // Deuxième requête
+    let res = reqwest::get("https://api.kraken.com/0/public/Ticker?pair=XBTUSD").await?;
+    // println!("Status: {}", res.status());
+    // println!("Headers:\n{:#?}", res.headers());
 
     let body = res.text().await?;
-    //println!("Body:\n{}", body);
-
-    let ticker_response: TickerResponse = serde_json::from_str(&body)?;
-    let weighted_avg_price = ticker_response.weightedAvgPrice;
-
-    println!("Weighted Avg Price for BTC/USDT: {}", weighted_avg_price);
+    println!("Body:\n{}", body);
     Ok(())
 }
