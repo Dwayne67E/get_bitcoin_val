@@ -11,7 +11,7 @@ error_chain! {
 
 #[derive(Deserialize)]
 struct TickerResponse {
-    weighted_avg_price: String,
+    weightedAvgPrice: String,
     // Add other fields you might need here
 }
 
