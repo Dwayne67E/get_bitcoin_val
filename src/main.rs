@@ -1,5 +1,5 @@
-use error_chain::error_chain;
 use serde::Deserialize;
+use error_chain::error_chain;
 
 error_chain! {
     foreign_links {
@@ -9,31 +9,80 @@ error_chain! {
     }
 }
 
-#[derive(Deserialize)]
-struct TickerResponse {
-    weightedAvgPrice: String,
+#[derive(Deserialize, Debug)]
+struct KrakenTickerResponse {
+    // Adjust this struct based on the actual Kraken API response
+    result: ResultData,
+}
+
+#[derive(Deserialize, Debug)]
+struct ResultData {
+    #[serde(rename = "XETHZUSD")]
+    xethzusd: XETHZUSDData,
+}
+
+#[derive(Deserialize, Debug)]
+struct XETHZUSDData {
+    c: Vec<String>,
+}
+
+#[derive(Deserialize, Debug)]
+struct BinanceTickerResponse {
+    lastPrice: String,
     // Add other fields you might need here
+}
+
+async fn get_current_price_kraken(api_url: &str) -> Result<f64> {
+    let response = reqwest::get(api_url).await?;
+    let body = response.text().await?;
+
+    let ticker_response: KrakenTickerResponse = serde_json::from_str(&body)?;
+
+    // Extract the correct field from the Kraken API response
+    // For example, if the price is in the first element of the `c` vector:
+    if let Some(price_str) = ticker_response.result.xethzusd.c.get(0) {
+        if let Ok(price) = price_str.parse::<f64>() {
+            return Ok(price);
+        }
+    }
+
+    // Return an error if the price extraction fails
+    Err("Failed to extract current price from Kraken".into())
+}
+
+async fn get_current_price_binance(symbol: &str) -> Result<f64> {
+    let url = format!("https://api.binance.com/api/v3/ticker/24hr?symbol={}", symbol);
+
+    let response = reqwest::get(&url).await?;
+    let body = response.text().await?;
+    //println!("{}",body);
+
+    let ticker_response: BinanceTickerResponse = serde_json::from_str(&body)?;
+
+    // Extract the price from the "weightedAvgPrice" field
+    if let Ok(price) = ticker_response.lastPrice.parse::<f64>() {
+        return Ok(price);
+    }
+
+    // Return an error if the price extraction fails
+    Err("Failed to extract current price from Binance".into())
 }
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    // Première requête
-    let symbol_btcusdt = "BTCUSDT";
-    let url_btcusdt = format!("https://api.binance.com/api/v3/ticker/24hr?symbol={}", symbol_btcusdt);
+    let kraken_api_url = "https://api.kraken.com/0/public/Ticker?pair=ETHUSD";
 
-    let res_btcusdt = reqwest::get(&url_btcusdt).await?;
-    let body_btcusdt = res_btcusdt.text().await?;
-    let ticker_response_btcusdt: TickerResponse = serde_json::from_str(&body_btcusdt)?;
-    let weighted_avg_price_btcusdt = ticker_response_btcusdt.weightedAvgPrice;
+    match get_current_price_kraken(kraken_api_url).await {
+        Ok(price) => println!("LastPrice for ETH/USDT Kraken: {}", price),
+        Err(err) => eprintln!("Error from Kraken: {:?}", err),
+    }
 
-    println!("Weighted Avg Price for BTC/USDT: {}", weighted_avg_price_btcusdt);
+    let binance_symbol_ethusdt = "ETHUSDT";
 
-    // Deuxième requête
-    let res = reqwest::get("https://api.kraken.com/0/public/Ticker?pair=XBTUSD").await?;
-    // println!("Status: {}", res.status());
-    // println!("Headers:\n{:#?}", res.headers());
+    match get_current_price_binance(binance_symbol_ethusdt).await {
+        Ok(price) => println!("LastPrice for Binance {}: {}", binance_symbol_ethusdt, price),
+        Err(err) => eprintln!("Error from Binance: {:?}", err),
+    }
 
-    let body = res.text().await?;
-    println!("Body:\n{}", body);
     Ok(())
 }
