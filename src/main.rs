@@ -13,12 +13,12 @@ error_chain! {
     }
 }
 
-#[derive(Deserialize, Debug)] //kraken
+#[derive(Deserialize, Debug)] //krakennn
 struct KrakenTickerResponse {
     result: HashMap<String, PairData>,
 }
 
-#[derive(Deserialize, Debug)] //kraken
+#[derive(Deserialize, Debug)] //kraken e ignorer
 struct PairData {
     c: Vec<String>,
     // c: Vec<String>,
@@ -58,7 +58,7 @@ async fn get_last_traded_closed_lot_volume_kraken(api_url: &str, trading_pair: &
 
 async fn run() -> Result<()> {
     let kraken_pair = "XLTCZUSD";
-    //let binance_pair = "LTCUSD";
+    //let binance_pair = "LTCUSD";kd
 
     let kraken_api_url = format!("https://api.kraken.com/0/public/Ticker?pair={}", kraken_pair);
     //let binance_api_url = format!("https://api.binance.com/api/v3/ticker/24hr?symbol={}", binance_pair);
