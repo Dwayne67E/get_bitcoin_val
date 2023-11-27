@@ -1,6 +1,6 @@
 # get_bitcoin_val
 
-L'objecit de ce projet est de récupérer des valeurs grâce aux requêtes APi et d'en disposer sur une database afin d'en sortir des illustrations/graphes.
+L'objectif de ce projet est de récupérer des valeurs grâce aux requêtes APi et d'en disposer sur une database afin d'en sortir des illustrations/graphes.
 
 # Etape 1 : Réussir à récupérer des données grâce aux API
 On a utilisé celles de Kraken et Binance, néanmoins, en y repensant on a trouvé qu'il n'était pas logique d'utiliser deux exchanges pour ce projet. 
@@ -14,3 +14,6 @@ En effet, on arrive à récupérer le dernier prix tradé ainsi que le dernier v
 L'objectif serait donc de faire migrer ces valeurs dans une table d'une database créee pour le projet. 
 
 L'étape 2 de est à faire. 
+
+A noter : dans e code actuel, on récupère les valeurs de la paire LTC/USD (la cryptommonnaie LiteCoin). Etrange pour un projet qui se veut get_bitcoin_value mais lorsque je remplace par XBTCZUSD il y a une erreur ( à voir ).
+
