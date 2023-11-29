@@ -3,7 +3,7 @@ use error_chain::error_chain;
 use std::collections::HashMap;
 use tokio::time::sleep;
 use std::time::Duration;
-//use mysql_async::{prelude::Queryable, Pool, params};
+//use mysql_async::{prelude::Queryable, Pool, params}; -----advise from teacher use SQLX crate 
 
 error_chain! {
     foreign_links {
@@ -65,7 +65,7 @@ async fn run() -> Result<()> {
 
     loop {
         match get_last_traded_closed_price_kraken(&kraken_api_url, kraken_pair).await {
-            Ok(price) => println!("Last Trade Closed Price from Kraken for {}: {}\n", kraken_pair, price),
+            Ok(price) => println!("Last Trade Closed Price from Kraken for {}: {}", kraken_pair, price),
             Err(err) => {
                 eprintln!("Error from Kraken:");
                 print_error_details(&err);
