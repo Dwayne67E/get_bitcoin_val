@@ -1,5 +1,7 @@
 # get_bitcoin_val
 
+A noter : pour la db, il faut installer MySQL Client et MySSQLWorkbench pour voir visuellement les db avec leurs table autre part que dans le terminal. 
+
 L'objectif de ce projet est de récupérer des valeurs grâce aux requêtes APi et d'en disposer sur une database afin d'en sortir des illustrations/graphes.
 
 # Etape 1 : Réussir à récupérer des données grâce aux API
