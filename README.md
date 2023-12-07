@@ -14,6 +14,13 @@ En effet, on arrive à récupérer le dernier prix tradé ainsi que le dernier v
 L'objectif serait donc de faire migrer ces valeurs dans une table d'une database créee pour le projet. 
 
 L'étape 2 de est à faire. 
+# 07/12/2023
+L'étape 2 est maintenant faîte. 
+On arrive à storer nos outputs vers une database MySQL grâce à SQLx.
+ # Les nouveaux objectifs sont :
+- ajouter une colonne avec la date de l'export vers la database pour pour faire un graphe en fonction du temps.
+- empêcher que la table de la db se trie automatiquement selon des valeurs croissantes (c'est le ca actuellement).
+- réussir à faire des graphes à partir de notre table. 
 
 A noter : 
 ---dans le code actuel, on récupère les valeurs de la paire LTC/USD (la cryptommonnaie LiteCoin). Etrange pour un projet qui se veut get_bitcoin_value mais lorsque je remplace par XBTCZUSD il y a une erreur ( à voir ).
