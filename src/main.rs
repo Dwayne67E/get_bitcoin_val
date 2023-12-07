@@ -3,13 +3,29 @@ use error_chain::error_chain;
 use std::collections::HashMap;
 use tokio::time::sleep;
 use std::time::Duration;
+use sqlx::mysql::MySqlPoolOptions;
 //use mysql_async::{prelude::Queryable, Pool, params}; -----advise from teacher use SQLX crate 
+
+mod orphan_impls {
+    use super::*;
+
+    pub trait IntoError {
+        fn into_error(self) -> Error;
+    }
+
+    impl IntoError for sqlx::Error {
+        fn into_error(self) -> Error {
+            ErrorKind::Sqlx(self).into()
+        }
+    }
+}
 
 error_chain! {
     foreign_links {
         Io(std::io::Error);
         HttpRequest(reqwest::Error);
         Json(serde_json::Error);
+        Sqlx(sqlx::Error);
     }
 }
 
@@ -56,41 +72,74 @@ async fn get_last_traded_closed_lot_volume_kraken(api_url: &str, trading_pair: &
     Err(format!("Failed to extract current price from Kraken for trading pair: {}",trading_pair).into())
 }
 
+
+async fn insert_price_volume_to_database(pool: &sqlx::MySqlPool, price: f64, volume: f64) -> Result<()> {
+    match sqlx::query("INSERT IGNORE INTO ltc_price_volume (last_price, last_volume) VALUES (?, ?)")
+        .bind(price)
+        .bind(volume)
+        .execute(pool)
+        .await
+    {
+        Ok(_) => {
+            // L'insertion s'est bien déroulée
+            Ok(())
+        },
+        Err(err) => {
+            // Vérifier si l'erreur est due à une entrée en double
+            if let Some(db_error) = err.as_database_error() {
+                if db_error.code().is_some() && db_error.code().unwrap() == "1062" {
+                    // Code 1062 correspond à une entrée en double dans MySQL
+                    // Vous pouvez logger cette information si nécessaire
+                    println!("Duplicate entry: price {}", price);
+                    Ok(())
+                } else {
+                    // Une autre erreur s'est produite, la renvoyer
+                    Err(err.into())
+                }
+            } else {
+                // Une autre erreur s'est produite, la renvoyer
+                Err(err.into())
+            }
+        }
+    }
+}
+
 async fn run() -> Result<()> {
     let kraken_pair = "XLTCZUSD";
-    //let binance_pair = "LTCUSD";kd
 
     let kraken_api_url = format!("https://api.kraken.com/0/public/Ticker?pair={}", kraken_pair);
-    //let binance_api_url = format!("https://api.binance.com/api/v3/ticker/24hr?symbol={}", binance_pair);
+
+    // Créer une connexion à la base de données
+    let pool = MySqlPoolOptions::new()
+        .max_connections(5)
+        .connect("mysql://kyllian2:cash7823@localhost/students")
+        .await?;
 
     loop {
         match get_last_traded_closed_price_kraken(&kraken_api_url, kraken_pair).await {
-            Ok(price) => println!("Last Trade Closed Price from Kraken for {}: {}", kraken_pair, price),
-            Err(err) => {
-                eprintln!("Error from Kraken:");
-                print_error_details(&err);
+            Ok(price) => {
+                println!("Last Trade Closed Price from Kraken for {}: {}", kraken_pair, price);
+                // Insérer le prix et le volume dans la table
+                match get_last_traded_closed_lot_volume_kraken(&kraken_api_url, kraken_pair).await {
+                    Ok(volume) => {
+                        println!("Last Trade Closed Lot Volume from Kraken for {}: {}", kraken_pair, volume);
+                        insert_price_volume_to_database(&pool, price, volume).await?;
+                    }
+                    Err(err) => {
+                        eprintln!("Error fetching volume from Kraken:");
+                        print_error_details(&err);
+                    }
+                }
             }
-        }
-        match get_last_traded_closed_lot_volume_kraken(&kraken_api_url, kraken_pair).await {
-            Ok(volume) => println!("Last Trade Closed Lot Volume from Kraken for {}: {} \n", kraken_pair, volume),
             Err(err) => {
-                eprintln!("Error from Kraken:");
+                eprintln!("Error fetching price from Kraken:");
                 print_error_details(&err);
             }
         }
 
         sleep(Duration::from_secs(10)).await; //(enlever les commentaires si volonté d'utilisation )
         
-        
-        /* 
-        match get_current_price_binance(&binance_api_url).await {
-            Ok(price) => println!("LastPrice from Binance for {}: {}\n", binance_pair, price),
-            Err(err) => {
-                eprintln!("Error from Binance:");
-                print_error_details(&err);
-            }
-        }
-        */
+
     }
 }
 #[tokio::main]
@@ -107,24 +156,6 @@ fn print_error_details(err: &Error) {
 }
 
 
-/* 
 
-#[derive(Deserialize, Debug)] //binance
-struct BinanceTickerResponse {
-    lastPrice: String,
-    volume: String,
-}
 
-async fn get_current_price_binance(api_url_binance: &str) -> Result<f64> {
-    let response = reqwest::get(api_url_binance).await?;
-    let body = response.text().await?;
-    let ticker_response: BinanceTickerResponse = serde_json::from_str(&body)?;
-    //println!("{}", body);
-
-    if let Ok(price) = ticker_response.lastPrice.parse::<f64>() {
-        return Ok(price);
-    }
-
-    Err("Failed to extract current price from Binance".into())
-}
-*/
+//il me trie les insert dans ma table dans l'ordre ca n'a aucun intéret
