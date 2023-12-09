@@ -16,7 +16,7 @@ En effet, on arrive à récupérer le dernier prix tradé ainsi que le dernier v
 L'objectif serait donc de faire migrer ces valeurs dans une table d'une database créee pour le projet. 
 
 L'étape 2 de est à faire. 
-# 07/12/2023
+# 07/12/2023 
 L'étape 2 est maintenant faîte. 
 On arrive à storer nos outputs vers une database MySQL grâce à SQLx.
  # Les nouveaux objectifs sont :
