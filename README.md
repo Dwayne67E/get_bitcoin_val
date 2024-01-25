@@ -30,6 +30,16 @@ On a crée une nouvelle table avec l'id du trade (résolution des trades classé
 
 L'objectif désormais est d'essayer d'ajouter un réel intérêt ou de la pertinence. 
 
+# 25/01/2024
+Les deux projets (l'un qui récupère le prix du LTC depuis Kraken et l'envoit vers la database et celui qui réalise des graphes depuis les data de la database) ont été concaténé en un. 
+Petit soucis ici,
+Pour "cargo run" la partie qui vous intéresse, il faut renommer la partie voulu en main.rs (du bricolage oui mais j'ai galéré pendant 2h sans succès).
+Amélioration de la partie sur les graphiques avec plotters mais il reste des soucis. 
+Echec pour réaliser deux courbes sur le même graphique (l'objectif initial étant de corrélé le prix et le volume d'un actif tradé sur une plage de temps constante, nous 10sec, or là on n'arrive pas voir les deux en même temps. 
+Donc la solution est de créer deux graphes séparés. Cela ne change pas grand chose mais c'est moins sympa pour la lisibilité. 
+
+ # Objectif : rendre le code de la partie graphes plus abstraits que tout en brute. 
+
 
 
 A noter : 
