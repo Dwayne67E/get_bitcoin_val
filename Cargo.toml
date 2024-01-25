@@ -13,9 +13,11 @@ serde_json = "1.0"
 error-chain = "0.12"
 tokio = { version = "1", features = ["full"] }
 reqwest = "0.11"
-mysql = "19.0"
 mysql_async = "0.22"
 anyhow = "1.0"
 sqlx = { version = "0.5", features = [  "runtime-async-std-native-tls", "mysql" ] }
 async-std = { version = "1", features = [ "attributes" ] }
+mysql = "24.0.0"
+plotters = "0.3.5"
+chrono = "0.4"
 

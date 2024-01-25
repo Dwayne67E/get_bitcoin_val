@@ -15,6 +15,8 @@ L'objectif serait donc de faire migrer ces valeurs dans une table d'une database
 
 L'étape 2 de est à faire. 
 
+
+
 A noter : 
 ---dans le code actuel, on récupère les valeurs de la paire LTC/USD (la cryptommonnaie LiteCoin). Etrange pour un projet qui se veut get_bitcoin_value mais lorsque je remplace par XBTCZUSD il y a une erreur ( à voir ).
 ---il faudra aussi mieux organiser le code pour le rendre plus abstrait et plus simple pour un client. 
