@@ -1,5 +1,7 @@
 # get_bitcoin_val
 
+A noter : pour la db, il faut installer MySQL Client et MySSQLWorkbench pour voir visuellement les db avec leurs table autre part que dans le terminal. 
+
 L'objectif de ce projet est de récupérer des valeurs grâce aux requêtes APi et d'en disposer sur une database afin d'en sortir des illustrations/graphes.
 
 # Etape 1 : Réussir à récupérer des données grâce aux API
@@ -14,6 +16,19 @@ En effet, on arrive à récupérer le dernier prix tradé ainsi que le dernier v
 L'objectif serait donc de faire migrer ces valeurs dans une table d'une database créee pour le projet. 
 
 L'étape 2 de est à faire. 
+# 07/12/2023 
+L'étape 2 est maintenant faîte. 
+On arrive à storer nos outputs vers une database MySQL grâce à SQLx.
+ # Les nouveaux objectifs sont :
+- ajouter une colonne avec la date de l'export vers la database pour pour faire un graphe en fonction du temps.
+- empêcher que la table de la db se trie automatiquement selon des valeurs croissantes (c'est le ca actuellement).
+- réussir à faire des graphes à partir de notre table.
+
+# 09/12/2023
+L'étape 3 est faite. On arrive à créer des graphes en allant chercher les valeurs dans la base MySQL grâce à plotters dans Rust. 
+On a crée une nouvelle table avec l'id du trade (résolution des trades classés par prix par ordre croissant), le prix, le volume et le timestamp pour pour faire des graphes en fonction du temps. 
+
+L'objectif désormais est d'essayer d'ajouter un réel intérêt ou de la pertinence. 
 
 
 
